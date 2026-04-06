@@ -1,0 +1,2263 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>УГГУ — электронный журнал</title>
+  <style>
+    :root{
+      --bg:#07090c;
+      --bg-soft:#0e1319;
+      --panel:#111821;
+      --panel-2:#151e28;
+      --panel-3:#1a2633;
+      --line:rgba(255,255,255,.08);
+      --line-strong:rgba(255,255,255,.14);
+      --text:#eef4fb;
+      --muted:#98a7b7;
+      --muted-2:#728294;
+      --gold:#d8b36a;
+      --gold-2:#f5d48b;
+      --gold-soft:rgba(216,179,106,.14);
+      --copper:#b7744a;
+      --iron:#89a8c2;
+      --green:#4ec28a;
+      --red:#ff6f6f;
+      --blue:#6db3ff;
+      --shadow:0 20px 60px rgba(0,0,0,.35);
+      --radius:22px;
+      --radius-sm:14px;
+      --header-h:76px;
+      --side-w:270px;
+      --grad:linear-gradient(135deg, rgba(216,179,106,.28), rgba(255,255,255,.03) 45%, rgba(96,131,170,.18));
+      --hero-grad:radial-gradient(circle at 20% 20%, rgba(216,179,106,.20), transparent 28%),
+                  radial-gradient(circle at 80% 20%, rgba(109,179,255,.10), transparent 24%),
+                  linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,0));
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    html,body{height:100%}
+    body{
+      font-family:Inter, "Segoe UI", system-ui, sans-serif;
+      background:
+        radial-gradient(circle at top, rgba(216,179,106,.08), transparent 25%),
+        linear-gradient(180deg,#05070a,#0b1016 35%, #0a1015 100%);
+      color:var(--text);
+      overflow:hidden;
+    }
+    button,input,select{font:inherit}
+    button{cursor:pointer;border:none;background:none;color:inherit}
+    a{text-decoration:none;color:inherit}
+    .hidden{display:none !important}
+    .app{
+      height:100%;
+      display:none;
+      grid-template-columns:var(--side-w) 1fr;
+      grid-template-rows:var(--header-h) 1fr;
+      grid-template-areas:"sidebar header" "sidebar main";
+    }
+    .app.ready{display:grid}
+    .auth{
+      height:100%;
+      display:grid;
+      place-items:center;
+      padding:24px;
+      position:relative;
+      overflow:hidden;
+    }
+    .auth::before,
+    .auth::after{
+      content:"";
+      position:absolute;
+      inset:auto;
+      border-radius:50%;
+      filter:blur(40px);
+      opacity:.55;
+      pointer-events:none;
+    }
+    .auth::before{
+      width:360px;height:360px;left:-80px;top:-100px;
+      background:rgba(216,179,106,.12);
+    }
+    .auth::after{
+      width:320px;height:320px;right:-60px;bottom:-80px;
+      background:rgba(92,130,170,.12);
+    }
+    .auth-card{
+      position:relative;
+      width:min(1120px,100%);
+      background:rgba(14,19,25,.82);
+      border:1px solid var(--line);
+      border-radius:34px;
+      box-shadow:var(--shadow);
+      overflow:hidden;
+      display:grid;
+      grid-template-columns:1.15fr .85fr;
+      min-height:720px;
+      backdrop-filter:blur(18px);
+    }
+    .auth-hero{
+      position:relative;
+      padding:42px;
+      background:var(--hero-grad);
+      border-right:1px solid var(--line);
+      overflow:hidden;
+    }
+    .auth-panel{
+      padding:38px;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      gap:22px;
+      background:linear-gradient(180deg, rgba(255,255,255,.02), transparent);
+    }
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:18px;
+      margin-bottom:18px;
+    }
+    .brand-mark{
+      width:68px;height:68px;border-radius:20px;
+      background:linear-gradient(180deg, rgba(216,179,106,.2), rgba(216,179,106,.06));
+      border:1px solid rgba(216,179,106,.26);
+      position:relative;
+      overflow:hidden;
+      flex:0 0 auto;
+      box-shadow:0 10px 25px rgba(0,0,0,.25);
+    }
+    .brand-mark::before{
+      content:"";
+      position:absolute;left:18px;right:18px;bottom:12px;top:12px;
+      background:
+        linear-gradient(180deg, transparent 0 24%, rgba(216,179,106,.95) 24% 31%, transparent 31% 100%),
+        linear-gradient(90deg, transparent 0 10%, rgba(216,179,106,.95) 10% 17%, transparent 17% 47%, rgba(216,179,106,.95) 47% 54%, transparent 54% 84%, rgba(216,179,106,.95) 84% 91%, transparent 91%);
+      opacity:.9;
+      clip-path:polygon(0 0,100% 0,100% 76%,75% 100%,25% 100%,0 76%);
+    }
+    .brand small{
+      display:block;
+      color:var(--gold-2);
+      letter-spacing:.18em;
+      text-transform:uppercase;
+      font-size:11px;
+      margin-bottom:8px;
+    }
+    .brand h1{
+      font-size:28px;
+      letter-spacing:.02em;
+      line-height:1.1;
+    }
+    .brand p{
+      color:var(--muted);
+      margin-top:8px;
+      max-width:420px;
+      line-height:1.5;
+    }
+    .hero-copy{
+      max-width:560px;
+      padding-top:20px;
+      position:relative;
+      z-index:4;
+    }
+    .hero-copy h2{
+      font-size:62px;
+      line-height:.98;
+      letter-spacing:-.04em;
+      margin-bottom:18px;
+      max-width:680px;
+    }
+    .hero-copy h2 span{
+      color:var(--gold-2);
+      text-shadow:0 0 24px rgba(216,179,106,.18);
+    }
+    .hero-copy p{
+      color:#b9c6d3;
+      font-size:18px;
+      line-height:1.6;
+      max-width:600px;
+    }
+    .hero-badges{
+      margin-top:26px;
+      display:flex;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+    .chip{
+      padding:10px 14px;
+      border-radius:999px;
+      background:rgba(255,255,255,.04);
+      border:1px solid var(--line);
+      color:#d7e0ea;
+      font-size:13px;
+      letter-spacing:.01em;
+    }
+    .mine-scene{
+      position:absolute;
+      inset:auto 24px 24px 24px;
+      height:350px;
+      border-radius:28px;
+      border:1px solid rgba(255,255,255,.08);
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,0)),
+        radial-gradient(circle at 50% 0%, rgba(216,179,106,.12), transparent 30%),
+        linear-gradient(180deg, #111922 0%, #0c1218 100%);
+      overflow:hidden;
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.04);
+    }
+    .mine-grid,
+    .mine-grid::before,
+    .mine-grid::after{
+      position:absolute;inset:0;content:"";
+      background-image:linear-gradient(rgba(255,255,255,.04) 1px, transparent 1px),
+                       linear-gradient(90deg, rgba(255,255,255,.04) 1px, transparent 1px);
+      background-size:44px 44px;
+      mask-image:linear-gradient(180deg, rgba(0,0,0,.8), transparent 78%);
+    }
+    .mine-grid::before{transform:translateY(22px)}
+    .mine-grid::after{transform:translateY(44px)}
+    .mountain{
+      position:absolute;bottom:120px;width:44%;height:170px;
+      background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+      clip-path:polygon(0 100%, 18% 54%, 32% 70%, 54% 15%, 72% 48%, 100% 100%);
+      opacity:.45;
+      filter:drop-shadow(0 8px 30px rgba(0,0,0,.3));
+    }
+    .mountain.left{left:-4%;transform:scale(1.1)}
+    .mountain.right{right:-5%;opacity:.28}
+    .mine-ground{
+      position:absolute;left:0;right:0;bottom:0;height:128px;
+      background:linear-gradient(180deg,#0c1015,#080b0f);
+      border-top:1px solid rgba(255,255,255,.06);
+    }
+    .shaft{
+      position:absolute;bottom:72px;width:14px;height:200px;
+      background:linear-gradient(180deg, rgba(216,179,106,.3), rgba(216,179,106,.05));
+      border-left:1px solid rgba(216,179,106,.24);
+      border-right:1px solid rgba(216,179,106,.12);
+      box-shadow:0 0 24px rgba(216,179,106,.1);
+    }
+    .shaft::after{
+      content:"";
+      position:absolute;left:-7px;right:-7px;top:34px;height:4px;
+      background:rgba(255,255,255,.08);
+      box-shadow:0 38px 0 rgba(255,255,255,.06),0 76px 0 rgba(255,255,255,.05),0 114px 0 rgba(255,255,255,.04);
+    }
+    .shaft.one{left:18%}
+    .shaft.two{left:42%;height:228px}
+    .shaft.three{left:66%;height:214px}
+    .lift{
+      position:absolute;left:40.3%;bottom:120px;width:48px;height:30px;
+      border-radius:10px;
+      background:linear-gradient(180deg,var(--gold-2),var(--gold));
+      box-shadow:0 12px 20px rgba(0,0,0,.35);
+      animation:liftMove 8s ease-in-out infinite;
+    }
+    .lift::before{
+      content:"";
+      position:absolute;left:50%;top:-92px;width:2px;height:92px;
+      transform:translateX(-50%);
+      background:linear-gradient(180deg, rgba(255,255,255,.45), rgba(255,255,255,.1));
+    }
+    .lift::after{
+      content:"";
+      position:absolute;inset:7px 10px;border-radius:6px;
+      border:1px solid rgba(0,0,0,.24);
+      background:linear-gradient(180deg, rgba(255,255,255,.2), transparent);
+    }
+    @keyframes liftMove{
+      0%,100%{transform:translateY(0)}
+      32%{transform:translateY(-110px)}
+      68%{transform:translateY(-18px)}
+    }
+    .belt{
+      position:absolute;left:12%;right:12%;bottom:70px;height:18px;
+      background:linear-gradient(180deg,#242f3b,#10171f);
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:999px;
+      overflow:hidden;
+    }
+    .belt::before{
+      content:"";
+      position:absolute;inset:2px;
+      border-radius:999px;
+      background:repeating-linear-gradient(90deg, rgba(255,255,255,.12) 0 14px, rgba(255,255,255,.04) 14px 28px);
+      animation:beltRun 10s linear infinite;
+    }
+    @keyframes beltRun{to{transform:translateX(28px)}}
+    .cart{
+      position:absolute;left:16%;bottom:77px;width:90px;height:34px;
+      animation:cartMove 13s linear infinite;
+    }
+    .cart-body{
+      position:absolute;left:0;right:0;bottom:10px;height:22px;
+      background:linear-gradient(180deg,#3b4958,#1c2630);
+      border:1px solid rgba(255,255,255,.1);
+      clip-path:polygon(7% 0,93% 0,100% 100%,0 100%);
+      box-shadow:0 12px 24px rgba(0,0,0,.28);
+    }
+    .cart-body::after{
+      content:"";
+      position:absolute;left:16px;right:16px;top:3px;height:7px;border-radius:8px;
+      background:linear-gradient(90deg, rgba(216,179,106,.55), rgba(216,179,106,.08));
+    }
+    .wheel{
+      position:absolute;bottom:0;width:14px;height:14px;border-radius:50%;
+      background:#d9e7f4;border:3px solid #354452;
+      box-shadow:0 0 0 1px rgba(255,255,255,.08);
+    }
+    .wheel.w1{left:18px}.wheel.w2{right:18px}
+    @keyframes cartMove{
+      0%{transform:translateX(0)}
+      100%{transform:translateX(620px)}
+    }
+    .ore{
+      position:absolute;bottom:95px;width:10px;height:10px;border-radius:50%;
+      background:radial-gradient(circle at 30% 30%, #fff0c2, var(--gold));
+      box-shadow:0 0 12px rgba(216,179,106,.3);
+      opacity:.85;
+      animation:oreFall 5s linear infinite;
+    }
+    .ore.o1{left:21%;animation-delay:-.2s}
+    .ore.o2{left:36%;animation-delay:-2s}
+    .ore.o3{left:58%;animation-delay:-1s}
+    .ore.o4{left:74%;animation-delay:-3.3s}
+    @keyframes oreFall{
+      0%{transform:translateY(-140px) scale(.6);opacity:0}
+      12%{opacity:.95}
+      100%{transform:translateY(120px) scale(1);opacity:0}
+    }
+    .signal{
+      position:absolute;top:50px;width:18px;height:18px;border-radius:50%;
+      background:radial-gradient(circle, var(--gold-2), rgba(216,179,106,.35));
+      box-shadow:0 0 0 0 rgba(216,179,106,.42);
+      animation:pulse 2.6s ease-out infinite;
+    }
+    .signal.s1{left:17%}
+    .signal.s2{left:41%}
+    .signal.s3{left:65%}
+    @keyframes pulse{
+      0%{box-shadow:0 0 0 0 rgba(216,179,106,.35)}
+      100%{box-shadow:0 0 0 20px rgba(216,179,106,0)}
+    }
+    .scene-caption{
+      position:absolute;right:22px;top:20px;
+      width:220px;
+      padding:16px;
+      border-radius:18px;
+      background:rgba(8,12,16,.56);
+      border:1px solid rgba(255,255,255,.08);
+      backdrop-filter:blur(10px);
+      z-index:5;
+    }
+    .scene-caption h3{font-size:14px;margin-bottom:6px;color:var(--gold-2)}
+    .scene-caption p{font-size:13px;color:#c1ccd8;line-height:1.5}
+    .form-title{
+      font-size:30px;
+      line-height:1.1;
+      margin-bottom:8px;
+    }
+    .form-subtitle{
+      color:var(--muted);
+      line-height:1.55;
+      margin-bottom:4px;
+    }
+    .demo-list{
+      display:grid;
+      gap:10px;
+      margin-top:12px;
+    }
+    .demo-btn{
+      width:100%;
+      text-align:left;
+      padding:14px 16px;
+      border-radius:16px;
+      background:rgba(255,255,255,.03);
+      border:1px solid var(--line);
+      transition:.2s ease;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+    }
+    .demo-btn:hover{
+      transform:translateY(-1px);
+      border-color:rgba(216,179,106,.24);
+      background:rgba(216,179,106,.05);
+    }
+    .demo-btn strong{display:block;font-size:15px}
+    .demo-btn span{color:var(--muted);font-size:12px}
+    .auth-note{
+      padding:14px 16px;
+      border-radius:16px;
+      background:rgba(255,255,255,.03);
+      border:1px solid var(--line);
+      color:#d1dbe5;
+      line-height:1.55;
+      font-size:14px;
+    }
+    .primary{
+      padding:14px 18px;
+      border-radius:16px;
+      color:#16110a;
+      font-weight:700;
+      background:linear-gradient(135deg, var(--gold), var(--gold-2));
+      box-shadow:0 10px 30px rgba(216,179,106,.18);
+      transition:.2s ease;
+    }
+    .primary:hover{transform:translateY(-1px);filter:saturate(1.06)}
+    .ghost{
+      padding:13px 16px;
+      border-radius:16px;
+      background:rgba(255,255,255,.03);
+      border:1px solid var(--line);
+      color:var(--text);
+      transition:.2s ease;
+    }
+    .ghost:hover{
+      border-color:rgba(216,179,106,.24);
+      background:rgba(216,179,106,.04);
+    }
+    .field{
+      display:grid;
+      gap:8px;
+    }
+    .field label{
+      color:#c8d1dc;
+      font-size:13px;
+    }
+    .field select,.field input{
+      width:100%;
+      padding:14px 16px;
+      border-radius:16px;
+      background:rgba(255,255,255,.03);
+      border:1px solid var(--line);
+      color:var(--text);
+      outline:none;
+      transition:.2s ease;
+    }
+    .field select:focus,.field input:focus{
+      border-color:rgba(216,179,106,.42);
+      box-shadow:0 0 0 3px rgba(216,179,106,.08);
+    }
+    .actions{
+      display:flex;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+    .header{
+      grid-area:header;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:16px;
+      padding:18px 28px;
+      border-bottom:1px solid var(--line);
+      background:rgba(8,11,15,.78);
+      backdrop-filter:blur(16px);
+    }
+    .side{
+      grid-area:sidebar;
+      padding:18px;
+      border-right:1px solid var(--line);
+      background:linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,0));
+      display:flex;
+      flex-direction:column;
+      gap:20px;
+      overflow:auto;
+    }
+    .main{
+      grid-area:main;
+      overflow:auto;
+      padding:28px;
+    }
+    .header-left{
+      display:flex;
+      align-items:center;
+      gap:18px;
+      min-width:0;
+    }
+    .header-title h2{
+      font-size:18px;
+      letter-spacing:.01em;
+      margin-bottom:3px;
+    }
+    .header-title p{color:var(--muted);font-size:13px}
+    .avatar{
+      width:48px;height:48px;border-radius:16px;
+      background:linear-gradient(180deg, rgba(216,179,106,.22), rgba(216,179,106,.07));
+      border:1px solid rgba(216,179,106,.24);
+      display:grid;place-items:center;
+      font-weight:800;
+      color:var(--gold-2);
+      flex:0 0 auto;
+    }
+    .role-pill{
+      padding:8px 12px;
+      border-radius:999px;
+      background:rgba(216,179,106,.08);
+      border:1px solid rgba(216,179,106,.18);
+      color:var(--gold-2);
+      font-size:12px;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+    }
+    .header-right{
+      display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+    }
+    .side-brand{
+      display:flex;align-items:center;gap:14px;
+      padding:10px 8px 20px;
+      border-bottom:1px solid var(--line);
+    }
+    .side-brand h3{
+      font-size:16px;margin-bottom:4px;
+    }
+    .side-brand p{
+      font-size:12px;color:var(--muted);
+    }
+    .nav-group{
+      display:grid;gap:8px;
+    }
+    .nav-label{
+      font-size:11px;
+      color:var(--muted-2);
+      text-transform:uppercase;
+      letter-spacing:.14em;
+      padding:0 8px 6px;
+    }
+    .nav-btn{
+      text-align:left;
+      width:100%;
+      padding:14px 14px;
+      border-radius:18px;
+      display:flex;align-items:center;gap:12px;
+      color:#d5dee8;
+      border:1px solid transparent;
+      transition:.18s ease;
+    }
+    .nav-btn:hover{
+      background:rgba(255,255,255,.03);
+      border-color:var(--line);
+    }
+    .nav-btn.active{
+      background:linear-gradient(180deg, rgba(216,179,106,.12), rgba(216,179,106,.05));
+      border-color:rgba(216,179,106,.18);
+      color:#fff5dc;
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.04);
+    }
+    .nav-ico{
+      width:38px;height:38px;border-radius:12px;
+      background:rgba(255,255,255,.04);
+      display:grid;place-items:center;
+      font-size:17px;
+      border:1px solid rgba(255,255,255,.05);
+      flex:0 0 auto;
+    }
+    .nav-btn.active .nav-ico{
+      background:rgba(216,179,106,.12);
+      border-color:rgba(216,179,106,.16);
+    }
+    .nav-txt strong{display:block;font-size:14px}
+    .nav-txt span{display:block;font-size:12px;color:var(--muted);margin-top:3px}
+    .page{display:none}
+    .page.active{display:block}
+    .hero{
+      position:relative;
+      border:1px solid var(--line);
+      border-radius:30px;
+      overflow:hidden;
+      background:
+        radial-gradient(circle at 12% 18%, rgba(216,179,106,.18), transparent 24%),
+        radial-gradient(circle at 86% 18%, rgba(109,179,255,.12), transparent 20%),
+        linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.01));
+      padding:28px;
+      min-height:330px;
+      box-shadow:var(--shadow);
+      margin-bottom:22px;
+    }
+    .hero .hero-top{
+      position:relative;z-index:2;
+      display:flex;justify-content:space-between;gap:22px;align-items:flex-start;flex-wrap:wrap;
+      margin-bottom:16px;
+    }
+    .hero h3{
+      font-size:42px;
+      line-height:1;
+      letter-spacing:-.04em;
+      max-width:720px;
+    }
+    .hero h3 span{color:var(--gold-2)}
+    .hero p{
+      margin-top:16px;
+      max-width:620px;
+      color:#c9d4df;
+      line-height:1.65;
+      font-size:16px;
+    }
+    .hero-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:20px}
+    .hero-mini{
+      position:absolute;right:24px;top:24px;width:min(380px,40%);
+      border:1px solid rgba(255,255,255,.08);
+      background:rgba(8,12,16,.55);
+      backdrop-filter:blur(12px);
+      border-radius:24px;
+      padding:18px;
+      z-index:3;
+    }
+    .hero-mini h4{
+      color:var(--gold-2);font-size:13px;text-transform:uppercase;letter-spacing:.14em;
+      margin-bottom:8px;
+    }
+    .hero-mini ul{
+      display:grid;gap:10px;list-style:none;
+      color:#d9e3ee;
+      font-size:14px;
+    }
+    .hero-mini li{
+      display:flex;justify-content:space-between;gap:14px;
+      border-bottom:1px solid rgba(255,255,255,.05);
+      padding-bottom:10px;
+    }
+    .hero-mini li:last-child{border-bottom:none;padding-bottom:0}
+    .hero-mini span:last-child{color:var(--muted)}
+    .hero-ore{
+      position:absolute;inset:auto 18px 18px 18px;height:160px;
+      border-radius:24px;background:rgba(5,9,12,.4);
+      border:1px solid rgba(255,255,255,.06);
+      overflow:hidden;
+    }
+    .hero-ore .belt{left:6%;right:6%;bottom:28px}
+    .hero-ore .cart{left:8%;bottom:35px}
+    .hero-ore .ore{bottom:58px}
+    .hero-ore .shaft.one{left:18%;height:130px;bottom:28px}
+    .hero-ore .shaft.two{left:44%;height:148px;bottom:28px}
+    .hero-ore .shaft.three{left:70%;height:134px;bottom:28px}
+    .hero-ore .signal{top:18px}
+    .grid{
+      display:grid;
+      gap:18px;
+    }
+    .stats{
+      grid-template-columns:repeat(4, minmax(0,1fr));
+      margin-bottom:22px;
+    }
+    .card{
+      background:linear-gradient(180deg, rgba(255,255,255,.025), rgba(255,255,255,.01));
+      border:1px solid var(--line);
+      border-radius:24px;
+      padding:20px;
+      box-shadow:var(--shadow);
+      min-width:0;
+    }
+    .stat-card .label{
+      color:var(--muted-2);
+      text-transform:uppercase;
+      letter-spacing:.14em;
+      font-size:11px;
+      margin-bottom:12px;
+    }
+    .stat-card .value{
+      font-size:38px;
+      line-height:1;
+      letter-spacing:-.05em;
+      margin-bottom:8px;
+      color:var(--gold-2);
+    }
+    .stat-card .sub{
+      color:#c1ccd8;
+      font-size:13px;
+      line-height:1.5;
+    }
+    .panel-head{
+      display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap;
+      margin-bottom:18px;
+    }
+    .panel-head h4{font-size:22px;letter-spacing:-.03em}
+    .panel-head p{color:var(--muted);margin-top:6px;line-height:1.5}
+    .split{
+      display:grid;
+      grid-template-columns:1.1fr .9fr;
+      gap:18px;
+      align-items:start;
+    }
+    .muted{
+      color:var(--muted)
+    }
+    .toolbar{
+      display:flex;gap:12px;flex-wrap:wrap;align-items:end;margin-bottom:18px
+    }
+    .toolbar .field{min-width:180px;flex:1}
+    .table-wrap{
+      overflow:auto;
+      border-radius:18px;
+      border:1px solid rgba(255,255,255,.06);
+      background:rgba(6,10,14,.45);
+    }
+    table{
+      width:100%;
+      border-collapse:collapse;
+      min-width:860px;
+    }
+    th,td{
+      padding:14px 14px;
+      border-bottom:1px solid rgba(255,255,255,.06);
+      text-align:left;
+      vertical-align:middle;
+    }
+    th{
+      font-size:12px;
+      text-transform:uppercase;
+      letter-spacing:.12em;
+      color:var(--muted-2);
+      background:rgba(255,255,255,.025);
+      position:sticky;
+      top:0;
+      z-index:1;
+    }
+    td{font-size:14px}
+    tbody tr:hover td{background:rgba(255,255,255,.018)}
+    .score-btn{
+      min-width:56px;
+      padding:10px 8px;
+      border-radius:12px;
+      background:rgba(255,255,255,.04);
+      border:1px solid rgba(255,255,255,.06);
+      font-weight:700;
+      text-align:center;
+      transition:.16s ease;
+    }
+    .score-btn:hover{
+      border-color:rgba(216,179,106,.28);
+      background:rgba(216,179,106,.08);
+    }
+    .score-low{color:#ff9696}
+    .score-mid{color:#ffd98e}
+    .score-high{color:#95f0bb}
+    .attendance-toggle{
+      width:54px;height:34px;border-radius:999px;
+      background:rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.07);
+      position:relative;
+      transition:.2s ease;
+    }
+    .attendance-toggle::before{
+      content:"";
+      position:absolute;top:4px;left:4px;width:24px;height:24px;border-radius:50%;
+      background:#f4f8fd;
+      transition:.2s ease;
+      box-shadow:0 4px 12px rgba(0,0,0,.2);
+    }
+    .attendance-toggle.present{
+      background:rgba(78,194,138,.18);
+      border-color:rgba(78,194,138,.28);
+    }
+    .attendance-toggle.present::before{transform:translateX(20px);background:var(--green)}
+    .badge{
+      display:inline-flex;align-items:center;gap:8px;
+      padding:8px 10px;border-radius:999px;font-size:12px;
+      border:1px solid rgba(255,255,255,.07);
+      background:rgba(255,255,255,.04);
+    }
+    .badge.warn{color:#ffe2a8;background:rgba(216,179,106,.1);border-color:rgba(216,179,106,.18)}
+    .badge.ok{color:#b4f1d3;background:rgba(78,194,138,.12);border-color:rgba(78,194,138,.18)}
+    .badge.danger{color:#ffc0c0;background:rgba(255,111,111,.10);border-color:rgba(255,111,111,.18)}
+    .subject-grid{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:16px;
+    }
+    .subject-card{
+      padding:18px;
+      border-radius:22px;
+      border:1px solid var(--line);
+      background:linear-gradient(180deg, rgba(255,255,255,.025), rgba(255,255,255,.01));
+      transition:.18s ease;
+    }
+    .subject-card:hover{
+      transform:translateY(-2px);
+      border-color:rgba(216,179,106,.2);
+      background:linear-gradient(180deg, rgba(216,179,106,.08), rgba(255,255,255,.01));
+    }
+    .subject-card .top{
+      display:flex;justify-content:space-between;gap:12px;align-items:flex-start;
+      margin-bottom:14px;
+    }
+    .subject-card h5{font-size:18px}
+    .subject-card p{font-size:13px;color:var(--muted);line-height:1.5}
+    .subject-score{
+      font-size:30px;
+      color:var(--gold-2);
+      letter-spacing:-.05em;
+      line-height:1;
+    }
+    .progress{
+      height:10px;border-radius:999px;background:rgba(255,255,255,.06);overflow:hidden;margin:14px 0 10px;
+    }
+    .progress > span{
+      display:block;height:100%;
+      background:linear-gradient(90deg, var(--gold), var(--gold-2));
+      border-radius:999px;
+    }
+    .kv{
+      display:grid;gap:12px
+    }
+    .kv-row{
+      display:flex;justify-content:space-between;gap:14px;
+      padding-bottom:12px;border-bottom:1px solid rgba(255,255,255,.06);
+      font-size:14px;
+    }
+    .kv-row:last-child{border-bottom:none;padding-bottom:0}
+    .kv-row span:last-child{color:#d4dee8;text-align:right}
+    .students-grid{
+      display:grid;
+      grid-template-columns:repeat(2, minmax(0,1fr));
+      gap:16px;
+    }
+    .student-card{
+      border:1px solid var(--line);
+      border-radius:22px;
+      padding:18px;
+      background:linear-gradient(180deg, rgba(255,255,255,.025), rgba(255,255,255,.01));
+    }
+    .student-card .head{
+      display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px;
+    }
+    .student-card h5{font-size:18px}
+    .student-card p{color:var(--muted);font-size:13px}
+    .mini-chart{
+      display:grid;grid-template-columns:repeat(8,1fr);gap:8px;align-items:end;height:90px;
+      margin-top:14px;
+    }
+    .mini-chart span{
+      display:block;border-radius:10px 10px 6px 6px;
+      background:linear-gradient(180deg, rgba(216,179,106,.95), rgba(216,179,106,.18));
+      border:1px solid rgba(216,179,106,.18);
+      min-height:18px;
+    }
+    .timeline{
+      display:grid;gap:12px;
+    }
+    .timeline-item{
+      display:grid;
+      grid-template-columns:84px 1fr auto;
+      gap:14px;
+      align-items:center;
+      padding:14px 0;
+      border-bottom:1px solid rgba(255,255,255,.06);
+    }
+    .timeline-item:last-child{border-bottom:none;padding-bottom:0}
+    .timeline-item strong{display:block;font-size:14px}
+    .timeline-item p{color:var(--muted);font-size:13px;line-height:1.5}
+    .admin-grid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:18px;
+    }
+    .access-grid{
+      display:grid;
+      gap:12px;
+    }
+    .access-row{
+      display:grid;
+      grid-template-columns:1fr repeat(3, 88px);
+      gap:10px;
+      align-items:center;
+      padding:12px;
+      border-radius:18px;
+      background:rgba(255,255,255,.03);
+      border:1px solid rgba(255,255,255,.06);
+    }
+    .switch{
+      display:inline-flex;justify-content:center
+    }
+    .toggle{
+      width:52px;height:30px;border-radius:999px;background:rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.08);position:relative;
+    }
+    .toggle::before{
+      content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;
+      background:#eef4fb;transition:.2s ease;
+    }
+    .toggle.on{
+      background:rgba(216,179,106,.18);border-color:rgba(216,179,106,.28)
+    }
+    .toggle.on::before{transform:translateX(22px);background:var(--gold-2)}
+    .quick-list{
+      display:grid;gap:12px;
+    }
+    .quick-item{
+      display:flex;justify-content:space-between;gap:12px;
+      padding:14px 16px;border-radius:18px;border:1px solid rgba(255,255,255,.06);
+      background:rgba(255,255,255,.025);
+    }
+    .quick-item strong{display:block;font-size:14px}
+    .quick-item span{display:block;color:var(--muted);font-size:12px;margin-top:4px}
+    .side-footer{
+      margin-top:auto;
+      padding:16px;
+      border-radius:20px;
+      background:linear-gradient(180deg, rgba(216,179,106,.10), rgba(255,255,255,.01));
+      border:1px solid rgba(216,179,106,.12);
+    }
+    .side-footer h4{
+      font-size:14px;margin-bottom:8px;color:var(--gold-2)
+    }
+    .side-footer p{font-size:13px;color:#d4dee8;line-height:1.6}
+    .modal{
+      position:fixed;inset:0;
+      background:rgba(2,4,6,.64);
+      display:none;align-items:center;justify-content:center;
+      padding:20px;z-index:30;
+      backdrop-filter:blur(10px);
+    }
+    .modal.open{display:flex}
+    .modal-card{
+      width:min(520px,100%);
+      border-radius:28px;
+      background:linear-gradient(180deg, rgba(17,24,33,.98), rgba(12,18,24,.98));
+      border:1px solid var(--line);
+      box-shadow:var(--shadow);
+      padding:24px;
+    }
+    .modal-card h4{
+      font-size:28px;letter-spacing:-.04em;margin-bottom:8px;
+    }
+    .modal-card p{
+      color:var(--muted);line-height:1.6;margin-bottom:18px;
+    }
+    .score-presets{
+      display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin:16px 0;
+    }
+    .preset{
+      padding:12px 0;border-radius:14px;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.03);
+      font-weight:700;
+      text-align:center;
+      transition:.16s ease;
+    }
+    .preset:hover{
+      border-color:rgba(216,179,106,.24);
+      background:rgba(216,179,106,.06);
+    }
+    .modal-actions{
+      margin-top:18px;
+      display:flex;justify-content:flex-end;gap:12px;flex-wrap:wrap
+    }
+    .toast{
+      position:fixed;right:20px;bottom:20px;z-index:50;
+      padding:14px 16px;border-radius:18px;
+      background:rgba(9,14,18,.95);
+      border:1px solid var(--line);
+      color:#e8eef5;
+      box-shadow:var(--shadow);
+      transform:translateY(20px);
+      opacity:0;
+      transition:.22s ease;
+      pointer-events:none;
+      max-width:340px;
+    }
+    .toast.show{transform:translateY(0);opacity:1}
+    @media (max-width: 1200px){
+      .stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+      .split,.admin-grid,.students-grid,.subject-grid{grid-template-columns:1fr}
+      .hero-mini{position:relative;right:auto;top:auto;width:100%;margin-top:18px}
+      .hero{padding-bottom:210px}
+    }
+    @media (max-width: 980px){
+      .auth-card{grid-template-columns:1fr}
+      .auth-hero{min-height:620px}
+      .app{grid-template-columns:1fr;grid-template-rows:auto auto 1fr;grid-template-areas:"header" "sidebar" "main"}
+      .side{padding-top:8px;border-right:none;border-bottom:1px solid var(--line)}
+      .main{padding:20px}
+      .hero h3{font-size:34px}
+      .hero-copy h2{font-size:46px}
+      .access-row{grid-template-columns:1fr}
+    }
+    @media (max-width: 720px){
+      .auth-panel,.auth-hero{padding:24px}
+      .hero{padding:20px}
+      .hero-ore{height:150px}
+      .hero-copy h2{font-size:36px}
+      .brand h1{font-size:22px}
+      .stats{grid-template-columns:1fr}
+      .toolbar{flex-direction:column;align-items:stretch}
+      .toolbar .field{min-width:unset}
+      .score-presets{grid-template-columns:repeat(3,1fr)}
+      .timeline-item{grid-template-columns:1fr}
+    }
+  </style>
+</head>
+<body>
+  <section class="auth" id="authScreen">
+    <div class="auth-card">
+      <div class="auth-hero">
+        <div class="brand">
+          <div class="brand-mark"></div>
+          <div>
+            <small>Уральский государственный горный университет</small>
+            <h1>Электронный журнал УГГУ</h1>
+            <p>Премиальный интерфейс для учёта баллов, посещаемости и аналитики по учебным потокам.</p>
+          </div>
+        </div>
+
+        <div class="hero-copy">
+          <h2>Цифровая система для <span>горного университета</span></h2>
+          <p>
+            Новый прототип собран как цельная рабочая среда: строгая тёмная стилистика, логика ролей,
+            аналитика успеваемости и фирменная визуальная сцена с шахтами, подъёмником и линией добычи руды.
+          </p>
+          <div class="hero-badges">
+            <div class="chip">Аналитика по группам</div>
+            <div class="chip">Гибкие сценарии ролей</div>
+            <div class="chip">Локальное сохранение данных</div>
+            <div class="chip">Анимации горной отрасли</div>
+          </div>
+        </div>
+
+        <div class="mine-scene">
+          <div class="mine-grid"></div>
+          <div class="mountain left"></div>
+          <div class="mountain right"></div>
+          <div class="scene-caption">
+            <h3>Добыча как часть айдентики</h3>
+            <p>Анимации шахтных стволов, клети, конвейера и руды подчёркивают профиль УГГУ и делают интерфейс солиднее.</p>
+          </div>
+          <div class="signal s1"></div>
+          <div class="signal s2"></div>
+          <div class="signal s3"></div>
+          <div class="shaft one"></div>
+          <div class="shaft two"></div>
+          <div class="shaft three"></div>
+          <div class="lift"></div>
+          <div class="ore o1"></div>
+          <div class="ore o2"></div>
+          <div class="ore o3"></div>
+          <div class="ore o4"></div>
+          <div class="belt"></div>
+          <div class="cart">
+            <div class="cart-body"></div>
+            <div class="wheel w1"></div>
+            <div class="wheel w2"></div>
+          </div>
+          <div class="mine-ground"></div>
+        </div>
+      </div>
+
+      <div class="auth-panel">
+        <div>
+          <div class="form-title">Вход в демо-систему</div>
+          <div class="form-subtitle">
+            Быстрый запуск по ролям. Для демонстрации логики можно войти как преподаватель, студент,
+            родитель или администратор.
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="roleSelect">Роль</label>
+          <select id="roleSelect">
+            <option value="teacher">Преподаватель</option>
+            <option value="student">Студент</option>
+            <option value="parent">Родитель</option>
+            <option value="admin">Администратор</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="nameInput">Отображаемое имя</label>
+          <input id="nameInput" value="Александр Петрович Орлов" />
+        </div>
+
+        <div class="actions">
+          <button class="primary" id="enterBtn">Открыть рабочую среду</button>
+          <button class="ghost" id="fillDemoBtn">Подставить демо-профиль</button>
+        </div>
+
+        <div class="auth-note">
+          В этой версии логика выстроена вокруг ролей и сценариев, а не вокруг разрозненных экранов:
+          преподаватель работает с журналом и посещаемостью, студент с результатами по предметам,
+          родитель — с ребёнком, администратор — с доступами и матрицей преподавателей.
+        </div>
+
+        <div class="demo-list">
+          <button class="demo-btn" data-demo="teacher">
+            <div><strong>Преподаватель</strong><span>Журнал, посещаемость, аналитика по группе</span></div>
+            <div class="badge">Демо</div>
+          </button>
+          <button class="demo-btn" data-demo="student">
+            <div><strong>Студент</strong><span>Предметы, баллы, хронология, прогресс</span></div>
+            <div class="badge">Демо</div>
+          </button>
+          <button class="demo-btn" data-demo="parent">
+            <div><strong>Родитель</strong><span>Контроль результатов ребёнка и замечаний</span></div>
+            <div class="badge">Демо</div>
+          </button>
+          <button class="demo-btn" data-demo="admin">
+            <div><strong>Администратор</strong><span>Права, группы, доступ преподавателей</span></div>
+            <div class="badge">Демо</div>
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="app" id="app">
+    <header class="header">
+      <div class="header-left">
+        <div class="avatar" id="headerAvatar">АП</div>
+        <div class="header-title">
+          <h2 id="headerName">Александр Петрович Орлов</h2>
+          <p id="headerSubtitle">Рабочая среда электронного журнала УГГУ</p>
+        </div>
+      </div>
+      <div class="header-right">
+        <div class="role-pill" id="headerRole">Преподаватель</div>
+        <button class="ghost" id="roleCycleBtn">Сменить роль</button>
+        <button class="ghost" id="logoutBtn">Выйти</button>
+      </div>
+    </header>
+
+    <aside class="side">
+      <div class="side-brand">
+        <div class="brand-mark" style="width:56px;height:56px;border-radius:18px"></div>
+        <div>
+          <h3>Журнал УГГУ</h3>
+          <p>Горный профиль · солидный тёмный интерфейс</p>
+        </div>
+      </div>
+
+      <div class="nav-group">
+        <div class="nav-label">Навигация</div>
+        <button class="nav-btn active" data-page="dashboard">
+          <div class="nav-ico">⛏️</div>
+          <div class="nav-txt"><strong>Панель</strong><span>Главная сводка и статус потоков</span></div>
+        </button>
+        <button class="nav-btn" data-page="journal" data-role="teacher,admin">
+          <div class="nav-ico">📘</div>
+          <div class="nav-txt"><strong>Журнал баллов</strong><span>Работа с оценками по активностям</span></div>
+        </button>
+        <button class="nav-btn" data-page="attendance" data-role="teacher,admin,parent">
+          <div class="nav-ico">🛡️</div>
+          <div class="nav-txt"><strong>Посещаемость</strong><span>Присутствие, выезды, пропуски</span></div>
+        </button>
+        <button class="nav-btn" data-page="students" data-role="teacher,admin">
+          <div class="nav-ico">👥</div>
+          <div class="nav-txt"><strong>Студенты</strong><span>Карточки, риски, динамика</span></div>
+        </button>
+        <button class="nav-btn" data-page="subjects" data-role="student,parent">
+          <div class="nav-ico">🧭</div>
+          <div class="nav-txt"><strong>Предметы</strong><span>Итоги, история и точки роста</span></div>
+        </button>
+        <button class="nav-btn" data-page="admin" data-role="admin">
+          <div class="nav-ico">⚙️</div>
+          <div class="nav-txt"><strong>Администрирование</strong><span>Права, матрица и состав групп</span></div>
+        </button>
+      </div>
+
+      <div class="side-footer">
+        <h4>Концепт редизайна</h4>
+        <p>
+          Акцент на шахтной айдентике, крупных премиальных блоках и понятной структуре сценариев вместо
+          перегруженной бета-логики.
+        </p>
+      </div>
+    </aside>
+
+    <main class="main">
+      <section class="page active" id="page-dashboard">
+        <div class="hero">
+          <div class="hero-top">
+            <div>
+              <div class="badge warn">Новый интерфейс УГГУ</div>
+              <h3 id="dashboardTitle">Панель управления <span>учебным потоком</span></h3>
+              <p id="dashboardText">
+                В этой версии интерфейс ведёт пользователя по рабочему сценарию: сначала сводка, потом действие,
+                затем детализация. Визуально система опирается на язык добычи, руды, шахт и инженерной дисциплины.
+              </p>
+              <div class="hero-actions">
+                <button class="primary" onclick="setPage('journal')">Открыть журнал</button>
+                <button class="ghost" onclick="setPage('attendance')">Проверить посещаемость</button>
+              </div>
+            </div>
+            <div class="hero-mini">
+              <h4>Оперативная сводка</h4>
+              <ul id="dashboardMini"></ul>
+            </div>
+          </div>
+
+          <div class="hero-ore">
+            <div class="signal s1"></div>
+            <div class="signal s2"></div>
+            <div class="signal s3"></div>
+            <div class="shaft one"></div>
+            <div class="shaft two"></div>
+            <div class="shaft three"></div>
+            <div class="ore o1"></div>
+            <div class="ore o2"></div>
+            <div class="ore o3"></div>
+            <div class="ore o4"></div>
+            <div class="belt"></div>
+            <div class="cart">
+              <div class="cart-body"></div>
+              <div class="wheel w1"></div>
+              <div class="wheel w2"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid stats" id="statsRow"></div>
+
+        <div class="split">
+          <div class="card">
+            <div class="panel-head">
+              <div>
+                <h4>Последние события</h4>
+                <p>Сводка изменений в журнале, активности групп и замечаний по студентам.</p>
+              </div>
+            </div>
+            <div class="timeline" id="timelineList"></div>
+          </div>
+
+          <div class="card">
+            <div class="panel-head">
+              <div>
+                <h4>Контроль качества</h4>
+                <p>Ключевые сигналы по успеваемости и дисциплине.</p>
+              </div>
+            </div>
+            <div class="quick-list" id="qualityList"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="page" id="page-journal">
+        <div class="panel-head">
+          <div>
+            <h4>Журнал баллов</h4>
+            <p>Сценарий для преподавателя: выбрать группу, предмет и отработать оценки по активностям.</p>
+          </div>
+        </div>
+        <div class="toolbar">
+          <div class="field">
+            <label>Группа</label>
+            <select id="groupSelect"></select>
+          </div>
+          <div class="field">
+            <label>Предмет</label>
+            <select id="subjectSelect"></select>
+          </div>
+          <div class="field">
+            <label>Период</label>
+            <select id="periodSelect">
+              <option>Март</option>
+              <option>Апрель</option>
+              <option>Май</option>
+              <option>Июнь</option>
+            </select>
+          </div>
+          <button class="primary" id="saveJournalBtn">Сохранить изменения</button>
+        </div>
+        <div class="card">
+          <div class="table-wrap">
+            <table id="journalTable"></table>
+          </div>
+        </div>
+      </section>
+
+      <section class="page" id="page-attendance">
+        <div class="panel-head">
+          <div>
+            <h4>Посещаемость</h4>
+            <p>Отметки строятся в одной логике с журналом: группа, предмет и период, без лишних шагов.</p>
+          </div>
+        </div>
+        <div class="toolbar">
+          <div class="field">
+            <label>Группа</label>
+            <select id="attendanceGroup"></select>
+          </div>
+          <div class="field">
+            <label>Предмет</label>
+            <select id="attendanceSubject"></select>
+          </div>
+          <button class="ghost" id="markAllPresentBtn">Отметить всех присутствующими</button>
+        </div>
+        <div class="card">
+          <div class="table-wrap">
+            <table id="attendanceTable"></table>
+          </div>
+        </div>
+      </section>
+
+      <section class="page" id="page-students">
+        <div class="panel-head">
+          <div>
+            <h4>Студенты и риски</h4>
+            <p>Крупные карточки упрощают просмотр проблемных мест, средних баллов и динамики.</p>
+          </div>
+        </div>
+        <div class="students-grid" id="studentsGrid"></div>
+      </section>
+
+      <section class="page" id="page-subjects">
+        <div class="panel-head">
+          <div>
+            <h4 id="subjectsTitle">Мои предметы</h4>
+            <p id="subjectsSubtitle">Подробный обзор прогресса, баллов и динамики по каждой дисциплине.</p>
+          </div>
+        </div>
+        <div class="subject-grid" id="subjectGrid"></div>
+      </section>
+
+      <section class="page" id="page-admin">
+        <div class="panel-head">
+          <div>
+            <h4>Администрирование</h4>
+            <p>В матрице доступов преподаватели получают права на дисциплины без перегруженных модалок.</p>
+          </div>
+        </div>
+        <div class="admin-grid">
+          <div class="card">
+            <div class="panel-head">
+              <div>
+                <h4>Матрица доступов</h4>
+                <p>Настройка доступа преподавателей к ключевым дисциплинам.</p>
+              </div>
+            </div>
+            <div class="access-grid" id="accessGrid"></div>
+          </div>
+
+          <div class="card">
+            <div class="panel-head">
+              <div>
+                <h4>Состав групп</h4>
+                <p>Оперативный обзор потоков и наполненности.</p>
+              </div>
+            </div>
+            <div class="quick-list" id="groupsList"></div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </section>
+
+  <div class="modal" id="scoreModal">
+    <div class="modal-card">
+      <h4>Редактировать балл</h4>
+      <p id="scoreContext">Выберите значение для активности.</p>
+      <div class="field">
+        <label for="scoreInput">Баллы</label>
+        <input id="scoreInput" type="number" min="0" max="100" />
+      </div>
+      <div class="score-presets" id="scorePresets"></div>
+      <div class="modal-actions">
+        <button class="ghost" id="closeModalBtn">Отмена</button>
+        <button class="primary" id="applyScoreBtn">Применить</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const STORAGE_KEY = "uggu_mining_journal_v1";
+
+    const baseData = {
+      groups: [
+        { id: "GP-24", name: "ГП-24", curator: "Александр Петрович Орлов" },
+        { id: "RM-23", name: "РМ-23", curator: "Елена Викторовна Миронова" },
+        { id: "SH-22", name: "ШТ-22", curator: "Сергей Игоревич Ковалёв" }
+      ],
+      subjects: [
+        { id: "geology", name: "Геология месторождений", teacher: "teacher-1", groups: ["GP-24","RM-23"] },
+        { id: "mining", name: "Технология подземной добычи", teacher: "teacher-1", groups: ["GP-24","SH-22"] },
+        { id: "safety", name: "Промышленная безопасность", teacher: "teacher-2", groups: ["GP-24","RM-23","SH-22"] }
+      ],
+      configs: {
+        geology: {
+          max: 100,
+          activities: [
+            { id: "g_lab1", label: "ЛР-1", max: 12 },
+            { id: "g_lab2", label: "ЛР-2", max: 12 },
+            { id: "g_quiz", label: "Тест", max: 16 },
+            { id: "g_field", label: "Полевой выезд", max: 24 },
+            { id: "g_exam", label: "Экзамен", max: 36 }
+          ]
+        },
+        mining: {
+          max: 100,
+          activities: [
+            { id: "m_lab1", label: "Практика-1", max: 10 },
+            { id: "m_lab2", label: "Практика-2", max: 10 },
+            { id: "m_case", label: "Кейс", max: 20 },
+            { id: "m_project", label: "Проект", max: 25 },
+            { id: "m_exam", label: "Итог", max: 35 }
+          ]
+        },
+        safety: {
+          max: 100,
+          activities: [
+            { id: "s_brief", label: "Инструктаж", max: 15 },
+            { id: "s_test1", label: "Тест-1", max: 15 },
+            { id: "s_test2", label: "Тест-2", max: 20 },
+            { id: "s_report", label: "Отчёт", max: 20 },
+            { id: "s_exam", label: "Зачёт", max: 30 }
+          ]
+        }
+      },
+      students: [
+        { id: "st1", name: "Алексеев Дмитрий Владиславович", group: "GP-24", parent: "parent-1" },
+        { id: "st2", name: "Белоусова Ксения Павловна", group: "GP-24", parent: "parent-2" },
+        { id: "st3", name: "Громов Антон Михайлович", group: "GP-24", parent: "parent-3" },
+        { id: "st4", name: "Данилова Ирина Сергеевна", group: "GP-24", parent: "parent-4" },
+        { id: "st5", name: "Ефимов Роман Алексеевич", group: "RM-23", parent: "parent-5" },
+        { id: "st6", name: "Жукова Алина Николаевна", group: "RM-23", parent: "parent-6" },
+        { id: "st7", name: "Зайцев Игорь Дмитриевич", group: "RM-23", parent: "parent-7" },
+        { id: "st8", name: "Иванченко Полина Викторовна", group: "SH-22", parent: "parent-8" },
+        { id: "st9", name: "Карпов Максим Евгеньевич", group: "SH-22", parent: "parent-9" },
+        { id: "st10", name: "Лукьянов Сергей Андреевич", group: "SH-22", parent: "parent-10" }
+      ],
+      users: {
+        teacher: { id:"teacher-1", name:"Александр Петрович Орлов", role:"teacher", focusGroup:"GP-24", focusSubject:"mining" },
+        student: { id:"st1", name:"Алексеев Дмитрий Владиславович", role:"student", studentId:"st1" },
+        parent: { id:"parent-1", name:"Владимир Дмитриевич Алексеев", role:"parent", childId:"st1" },
+        admin: { id:"admin-1", name:"Администратор УГГУ", role:"admin" }
+      },
+      teacherAccess: {
+        "teacher-1": { geology: true, mining: true, safety: true },
+        "teacher-2": { geology: false, mining: false, safety: true }
+      },
+      attendanceWeeks: ["1 неделя","2 неделя","3 неделя","4 неделя"]
+    };
+
+    const generatedState = buildDemoState();
+    let state = loadState();
+    let currentRole = "teacher";
+    let currentUser = null;
+    let currentPage = "dashboard";
+    let scoreEditing = null;
+
+    function loadState(){
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if(raw){
+        try{
+          return JSON.parse(raw);
+        }catch(e){}
+      }
+      saveState(generatedState);
+      return JSON.parse(JSON.stringify(generatedState));
+    }
+    function saveState(nextState = state){
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(nextState));
+    }
+    function buildDemoState(){
+      const data = JSON.parse(JSON.stringify(baseData));
+      data.scores = {};
+      data.attendance = {};
+      data.events = [
+        { date:"Сегодня", title:"Обновлён журнал по ТПД", text:"В группе ГП-24 выставлены баллы за проект по подземной добыче.", tag:"Журнал" },
+        { date:"Сегодня", title:"Риск по дисциплине у 2 студентов", text:"Низкий прогресс замечен в Геологии месторождений.", tag:"Аналитика" },
+        { date:"Вчера", title:"Полевой выезд подтверждён", text:"Для дисциплины «Геология месторождений» закрыты ведомости по выезду.", tag:"Выезд" },
+        { date:"Вчера", title:"Посещаемость обновлена", text:"В потоке РМ-23 внесены корректировки по промышленной безопасности.", tag:"Дисциплина" }
+      ];
+      data.students.forEach((student, index) => {
+        data.scores[student.id] = {};
+        data.attendance[student.id] = {};
+        data.subjects.forEach((subject, subjIndex) => {
+          if(subject.groups.includes(student.group)){
+            const cfg = data.configs[subject.id];
+            data.scores[student.id][subject.id] = {};
+            cfg.activities.forEach((activity, actIndex) => {
+              const ratio = [0.82,0.74,0.91,0.63,0.88,0.55,0.68,0.79,0.86,0.71][(index + actIndex + subjIndex) % 10];
+              const raw = Math.round(activity.max * ratio);
+              data.scores[student.id][subject.id][activity.id] = raw;
+            });
+            data.attendance[student.id][subject.id] = data.attendanceWeeks.map((_, weekIndex) => ((index + subjIndex + weekIndex) % 5 !== 0));
+          }
+        });
+      });
+      return data;
+    }
+
+    const els = {
+      authScreen: document.getElementById("authScreen"),
+      app: document.getElementById("app"),
+      roleSelect: document.getElementById("roleSelect"),
+      nameInput: document.getElementById("nameInput"),
+      enterBtn: document.getElementById("enterBtn"),
+      fillDemoBtn: document.getElementById("fillDemoBtn"),
+      headerName: document.getElementById("headerName"),
+      headerRole: document.getElementById("headerRole"),
+      headerAvatar: document.getElementById("headerAvatar"),
+      headerSubtitle: document.getElementById("headerSubtitle"),
+      roleCycleBtn: document.getElementById("roleCycleBtn"),
+      logoutBtn: document.getElementById("logoutBtn"),
+      statsRow: document.getElementById("statsRow"),
+      timelineList: document.getElementById("timelineList"),
+      qualityList: document.getElementById("qualityList"),
+      dashboardMini: document.getElementById("dashboardMini"),
+      dashboardTitle: document.getElementById("dashboardTitle"),
+      dashboardText: document.getElementById("dashboardText"),
+      groupSelect: document.getElementById("groupSelect"),
+      subjectSelect: document.getElementById("subjectSelect"),
+      periodSelect: document.getElementById("periodSelect"),
+      journalTable: document.getElementById("journalTable"),
+      attendanceGroup: document.getElementById("attendanceGroup"),
+      attendanceSubject: document.getElementById("attendanceSubject"),
+      attendanceTable: document.getElementById("attendanceTable"),
+      studentsGrid: document.getElementById("studentsGrid"),
+      subjectGrid: document.getElementById("subjectGrid"),
+      subjectsTitle: document.getElementById("subjectsTitle"),
+      subjectsSubtitle: document.getElementById("subjectsSubtitle"),
+      accessGrid: document.getElementById("accessGrid"),
+      groupsList: document.getElementById("groupsList"),
+      toast: document.getElementById("toast"),
+      scoreModal: document.getElementById("scoreModal"),
+      scoreContext: document.getElementById("scoreContext"),
+      scoreInput: document.getElementById("scoreInput"),
+      scorePresets: document.getElementById("scorePresets"),
+      closeModalBtn: document.getElementById("closeModalBtn"),
+      applyScoreBtn: document.getElementById("applyScoreBtn"),
+    };
+
+    function init(){
+      document.querySelectorAll(".demo-btn").forEach(btn => {
+        btn.addEventListener("click", () => fillDemo(btn.dataset.demo));
+      });
+      els.fillDemoBtn.addEventListener("click", () => fillDemo(els.roleSelect.value));
+      els.enterBtn.addEventListener("click", enterWorkspace);
+      els.roleCycleBtn.addEventListener("click", cycleRole);
+      els.logoutBtn.addEventListener("click", logout);
+
+      document.querySelectorAll(".nav-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const page = btn.dataset.page;
+          if(isPageAvailable(page)) setPage(page);
+        });
+      });
+
+      els.groupSelect.addEventListener("change", renderJournal);
+      els.subjectSelect.addEventListener("change", renderJournal);
+      els.attendanceGroup.addEventListener("change", renderAttendance);
+      els.attendanceSubject.addEventListener("change", renderAttendance);
+      document.getElementById("saveJournalBtn").addEventListener("click", () => showToast("Изменения в журнале сохранены локально."));
+      document.getElementById("markAllPresentBtn").addEventListener("click", markAllPresent);
+      els.closeModalBtn.addEventListener("click", closeScoreModal);
+      els.applyScoreBtn.addEventListener("click", applyScore);
+      els.scoreModal.addEventListener("click", (e) => {
+        if(e.target === els.scoreModal) closeScoreModal();
+      });
+
+      fillDemo("teacher");
+    }
+
+    function fillDemo(role){
+      const profile = state.users[role] || baseData.users[role];
+      els.roleSelect.value = role;
+      els.nameInput.value = profile.name;
+    }
+
+    function enterWorkspace(){
+      currentRole = els.roleSelect.value;
+      const demoUser = state.users[currentRole];
+      currentUser = { ...demoUser, name: els.nameInput.value.trim() || demoUser.name };
+      updateChrome();
+      applyRoleVisibility();
+      populateFilters();
+      setPage(resolveDefaultPage());
+      els.authScreen.classList.add("hidden");
+      els.app.classList.add("ready");
+      renderAll();
+    }
+
+    function logout(){
+      els.app.classList.remove("ready");
+      els.authScreen.classList.remove("hidden");
+      showToast("Возврат на экран входа.");
+    }
+
+    function cycleRole(){
+      const roles = ["teacher","student","parent","admin"];
+      const idx = roles.indexOf(currentRole);
+      const next = roles[(idx + 1) % roles.length];
+      els.roleSelect.value = next;
+      fillDemo(next);
+      currentRole = next;
+      const demoUser = state.users[next];
+      currentUser = { ...demoUser, name: demoUser.name };
+      updateChrome();
+      applyRoleVisibility();
+      populateFilters();
+      setPage(resolveDefaultPage());
+      renderAll();
+      showToast("Роль переключена: " + roleTitle(next));
+    }
+
+    function resolveDefaultPage(){
+      if(currentRole === "student" || currentRole === "parent") return "subjects";
+      if(currentRole === "admin") return "admin";
+      return "dashboard";
+    }
+
+    function applyRoleVisibility(){
+      document.querySelectorAll(".nav-btn").forEach(btn => {
+        const roles = btn.dataset.role;
+        if(!roles){
+          btn.classList.remove("hidden");
+          return;
+        }
+        const allowed = roles.split(",").includes(currentRole);
+        btn.classList.toggle("hidden", !allowed);
+      });
+    }
+
+    function isPageAvailable(page){
+      const btn = document.querySelector(`.nav-btn[data-page="${page}"]`);
+      return btn && !btn.classList.contains("hidden");
+    }
+
+    function setPage(page){
+      if(!isPageAvailable(page)) page = resolveDefaultPage();
+      currentPage = page;
+      document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+      const pageEl = document.getElementById("page-" + page);
+      if(pageEl) pageEl.classList.add("active");
+      document.querySelectorAll(".nav-btn").forEach(btn => {
+        btn.classList.toggle("active", btn.dataset.page === page);
+      });
+      renderAll();
+    }
+
+    function updateChrome(){
+      els.headerName.textContent = currentUser.name;
+      els.headerRole.textContent = roleTitle(currentRole);
+      els.headerAvatar.textContent = initials(currentUser.name);
+      const subtitles = {
+        teacher: "Рабочая среда преподавателя · контроль дисциплин и активности групп",
+        student: "Рабочая среда студента · личный прогресс по предметам",
+        parent: "Рабочая среда родителя · контроль результатов ребёнка",
+        admin: "Рабочая среда администратора · доступы, матрица и группы"
+      };
+      els.headerSubtitle.textContent = subtitles[currentRole];
+    }
+
+    function populateFilters(){
+      const availableGroups = getRoleGroups();
+      fillSelect(els.groupSelect, availableGroups, g => g.id, g => g.name);
+      fillSelect(els.attendanceGroup, availableGroups, g => g.id, g => g.name);
+
+      const firstJournalGroup = els.groupSelect.value || availableGroups[0]?.id;
+      fillSelect(els.subjectSelect, getSubjectsForGroup(firstJournalGroup), s => s.id, s => s.name);
+
+      const firstAttendanceGroup = els.attendanceGroup.value || availableGroups[0]?.id;
+      fillSelect(els.attendanceSubject, getSubjectsForGroup(firstAttendanceGroup), s => s.id, s => s.name);
+
+      els.groupSelect.onchange = () => {
+        fillSelect(els.subjectSelect, getSubjectsForGroup(els.groupSelect.value), s => s.id, s => s.name);
+        renderJournal();
+      };
+      els.attendanceGroup.onchange = () => {
+        fillSelect(els.attendanceSubject, getSubjectsForGroup(els.attendanceGroup.value), s => s.id, s => s.name);
+        renderAttendance();
+      };
+    }
+
+    function fillSelect(select, items, valueFn, labelFn){
+      const previous = select.value;
+      select.innerHTML = items.map(item => `<option value="${valueFn(item)}">${labelFn(item)}</option>`).join("");
+      if(items.some(item => valueFn(item) === previous)) select.value = previous;
+    }
+
+    function renderAll(){
+      renderDashboard();
+      renderJournal();
+      renderAttendance();
+      renderStudents();
+      renderSubjects();
+      renderAdmin();
+    }
+
+    function renderDashboard(){
+      const dashboardMap = {
+        teacher: {
+          title: 'Панель преподавателя <span>по добычному потоку</span>',
+          text: 'В центре сценария — группа, предмет и быстрый переход к действию. Система показывает средний балл, риски по посещаемости и слабые места без переключения между десятком экранов.'
+        },
+        student: {
+          title: 'Личный прогресс <span>по дисциплинам</span>',
+          text: 'Главный экран студента собран как единая сводка: итоговый процент, текущие баллы, замечания и история без перегруженных таблиц.'
+        },
+        parent: {
+          title: 'Контроль ребёнка <span>по учебному маршруту</span>',
+          text: 'Родитель видит не набор технических таблиц, а понятную картину: дисциплины, риски, посещаемость и динамику успеваемости.'
+        },
+        admin: {
+          title: 'Управление <span>академической системой</span>',
+          text: 'Администратор получает обзор потоков, доступов и активности преподавателей в одной цельной среде.'
+        }
+      };
+      els.dashboardTitle.innerHTML = dashboardMap[currentRole].title;
+      els.dashboardText.textContent = dashboardMap[currentRole].text;
+
+      const stats = getDashboardStats();
+      els.statsRow.innerHTML = stats.map(item => `
+        <div class="card stat-card">
+          <div class="label">${item.label}</div>
+          <div class="value">${item.value}</div>
+          <div class="sub">${item.sub}</div>
+        </div>
+      `).join("");
+
+      els.timelineList.innerHTML = state.events.map(ev => `
+        <div class="timeline-item">
+          <div class="badge">${ev.date}</div>
+          <div>
+            <strong>${ev.title}</strong>
+            <p>${ev.text}</p>
+          </div>
+          <div class="badge ${ev.tag === 'Аналитика' ? 'warn' : ev.tag === 'Дисциплина' ? 'danger' : 'ok'}">${ev.tag}</div>
+        </div>
+      `).join("");
+
+      const quality = getQualitySignals();
+      els.qualityList.innerHTML = quality.map(item => `
+        <div class="quick-item">
+          <div>
+            <strong>${item.title}</strong>
+            <span>${item.text}</span>
+          </div>
+          <div class="badge ${item.kind}">${item.score}</div>
+        </div>
+      `).join("");
+
+      const mini = getMiniSummary();
+      els.dashboardMini.innerHTML = mini.map(row => `<li><span>${row.label}</span><span>${row.value}</span></li>`).join("");
+    }
+
+    function renderJournal(){
+      if(!isPageAvailable("journal")) return;
+      const groupId = els.groupSelect.value || getRoleGroups()[0]?.id;
+      const subjectId = els.subjectSelect.value || getSubjectsForGroup(groupId)[0]?.id;
+      const cfg = state.configs[subjectId];
+      if(!groupId || !subjectId || !cfg){
+        els.journalTable.innerHTML = "";
+        return;
+      }
+      const students = state.students.filter(s => s.group === groupId);
+      const activityHeaders = cfg.activities.map(a => `<th>${a.label}<br><span class="muted">${a.max} б.</span></th>`).join("");
+      const rows = students.map(student => {
+        const total = getStudentSubjectTotal(student.id, subjectId);
+        return `
+          <tr>
+            <td><strong>${student.name}</strong><br><span class="muted">${student.group}</span></td>
+            ${cfg.activities.map(a => {
+              const val = state.scores[student.id]?.[subjectId]?.[a.id] ?? 0;
+              return `<td><button class="score-btn ${scoreClass(val, a.max)}" onclick="openScoreModal('${student.id}','${subjectId}','${a.id}')">${val}</button></td>`;
+            }).join("")}
+            <td><strong>${total}</strong> / ${cfg.max}</td>
+            <td>${gradeBadge(total, cfg.max)}</td>
+          </tr>
+        `;
+      }).join("");
+
+      els.journalTable.innerHTML = `
+        <thead>
+          <tr>
+            <th>Студент</th>
+            ${activityHeaders}
+            <th>Итого</th>
+            <th>Оценка</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      `;
+    }
+
+    function renderAttendance(){
+      if(!isPageAvailable("attendance")) return;
+      const groupId = els.attendanceGroup.value || getRoleGroups()[0]?.id;
+      const subjectId = els.attendanceSubject.value || getSubjectsForGroup(groupId)[0]?.id;
+      if(!groupId || !subjectId){
+        els.attendanceTable.innerHTML = "";
+        return;
+      }
+      const students = state.students.filter(s => s.group === groupId);
+      const weeks = state.attendanceWeeks;
+      els.attendanceTable.innerHTML = `
+        <thead>
+          <tr>
+            <th>Студент</th>
+            ${weeks.map(w => `<th>${w}</th>`).join("")}
+            <th>Итог</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${students.map(student => {
+            const marks = state.attendance[student.id]?.[subjectId] || [];
+            const presentCount = marks.filter(Boolean).length;
+            return `
+              <tr>
+                <td><strong>${student.name}</strong><br><span class="muted">${student.group}</span></td>
+                ${weeks.map((w, idx) => `
+                  <td>
+                    <button class="attendance-toggle ${marks[idx] ? 'present' : ''}" onclick="toggleAttendance('${student.id}','${subjectId}',${idx})"></button>
+                  </td>
+                `).join("")}
+                <td>${presentCount} / ${weeks.length}</td>
+              </tr>
+            `;
+          }).join("")}
+        </tbody>
+      `;
+    }
+
+    function renderStudents(){
+      if(!isPageAvailable("students")) return;
+      const groups = getRoleGroups().map(g => g.id);
+      const students = state.students.filter(s => groups.includes(s.group));
+      els.studentsGrid.innerHTML = students.map(student => {
+        const enrolledSubjects = getStudentSubjects(student.id);
+        const totals = enrolledSubjects.map(subj => percentage(getStudentSubjectTotal(student.id, subj.id), state.configs[subj.id].max));
+        const avg = totals.length ? Math.round(totals.reduce((a,b)=>a+b,0) / totals.length) : 0;
+        const risk = avg < 65 ? 'danger' : avg < 78 ? 'warn' : 'ok';
+        return `
+          <div class="student-card">
+            <div class="head">
+              <div>
+                <h5>${student.name}</h5>
+                <p>${student.group} · ${enrolledSubjects.length} дисциплины</p>
+              </div>
+              <div class="badge ${risk}">${avg}%</div>
+            </div>
+            <div class="kv">
+              <div class="kv-row"><span>Средний прогресс</span><span>${avg}%</span></div>
+              <div class="kv-row"><span>Лучшая дисциплина</span><span>${bestSubjectLabel(student.id)}</span></div>
+              <div class="kv-row"><span>Зона внимания</span><span>${worstSubjectLabel(student.id)}</span></div>
+            </div>
+            <div class="mini-chart">
+              ${totals.map(v => `<span style="height:${Math.max(18,v)}%"></span>`).join("")}
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function renderSubjects(){
+      if(!isPageAvailable("subjects")) return;
+      if(currentRole === "student"){
+        els.subjectsTitle.textContent = "Мои предметы";
+        els.subjectsSubtitle.textContent = "Личный прогресс, хронология и итоговый процент по каждой дисциплине.";
+      } else {
+        const child = getChildStudent();
+        els.subjectsTitle.textContent = "Предметы ребёнка";
+        els.subjectsSubtitle.textContent = child.name + " · " + child.group;
+      }
+      const studentId = currentRole === "student" ? currentUser.studentId : getChildStudent().id;
+      const subjects = getStudentSubjects(studentId);
+      els.subjectGrid.innerHTML = subjects.map(subject => {
+        const total = getStudentSubjectTotal(studentId, subject.id);
+        const cfg = state.configs[subject.id];
+        const pct = percentage(total, cfg.max);
+        const attendance = getStudentAttendancePct(studentId, subject.id);
+        return `
+          <div class="subject-card">
+            <div class="top">
+              <div>
+                <h5>${subject.name}</h5>
+                <p>${subject.groups.join(" · ")} · преподаватель ${teacherLabel(subject.teacher)}</p>
+              </div>
+              <div class="subject-score">${pct}%</div>
+            </div>
+            <div class="progress"><span style="width:${pct}%"></span></div>
+            <div class="kv">
+              <div class="kv-row"><span>Набрано баллов</span><span>${total} / ${cfg.max}</span></div>
+              <div class="kv-row"><span>Посещаемость</span><span>${attendance}%</span></div>
+              <div class="kv-row"><span>Итоговая оценка</span><span>${gradeText(total, cfg.max)}</span></div>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function renderAdmin(){
+      if(!isPageAvailable("admin")) return;
+      const teachers = [
+        { id:"teacher-1", name:"Александр Петрович Орлов" },
+        { id:"teacher-2", name:"Елена Викторовна Миронова" }
+      ];
+      els.accessGrid.innerHTML = `
+        <div class="access-row" style="font-size:12px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted-2)">
+          <div>Преподаватель</div>
+          ${state.subjects.map(s => `<div style="text-align:center">${shortSubject(s.name)}</div>`).join("")}
+        </div>
+        ${teachers.map(teacher => `
+          <div class="access-row">
+            <div>
+              <strong>${teacher.name}</strong>
+              <div class="muted" style="margin-top:4px">Доступ к дисциплинам потока</div>
+            </div>
+            ${state.subjects.map(subject => `
+              <div class="switch">
+                <button class="toggle ${state.teacherAccess[teacher.id]?.[subject.id] ? 'on' : ''}" onclick="toggleAccess('${teacher.id}','${subject.id}')"></button>
+              </div>
+            `).join("")}
+          </div>
+        `).join("")}
+      `;
+
+      els.groupsList.innerHTML = state.groups.map(group => {
+        const members = state.students.filter(s => s.group === group.id).length;
+        const avg = averageGroupProgress(group.id);
+        return `
+          <div class="quick-item">
+            <div>
+              <strong>${group.name}</strong>
+              <span>Куратор: ${group.curator} · ${members} студентов</span>
+            </div>
+            <div class="badge ${avg < 68 ? 'danger' : avg < 80 ? 'warn' : 'ok'}">${avg}%</div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function getDashboardStats(){
+      if(currentRole === "teacher"){
+        const groupId = currentUser.focusGroup;
+        const subjectId = currentUser.focusSubject;
+        const groupStudents = state.students.filter(s => s.group === groupId);
+        const avg = averageSubjectByGroup(subjectId, groupId);
+        const risk = groupStudents.filter(st => percentage(getStudentSubjectTotal(st.id, subjectId), state.configs[subjectId].max) < 65).length;
+        return [
+          { label:"Активная группа", value:groupId, sub:"Текущий рабочий поток преподавателя" },
+          { label:"Средний балл", value:avg + "%", sub:"По дисциплине «" + subjectLabel(subjectId) + "»" },
+          { label:"Студентов в риске", value:risk, sub:"Ниже 65% по итоговому прогрессу" },
+          { label:"Посещаемость", value:Math.round(groupAttendance(groupId, subjectId)) + "%", sub:"Сводка по четырём учебным неделям" }
+        ];
+      }
+      if(currentRole === "student"){
+        const sid = currentUser.studentId;
+        const avg = averageStudentProgress(sid);
+        return [
+          { label:"Средний прогресс", value:avg + "%", sub:"По всем активным дисциплинам" },
+          { label:"Лучшая дисциплина", value:bestSubjectLabel(sid), sub:"Наиболее высокий процент освоения" },
+          { label:"Посещаемость", value:getStudentAttendanceAvg(sid) + "%", sub:"Совокупно по всем занятиям" },
+          { label:"Текущий статус", value:avg >= 75 ? "Стабильно" : "Внимание", sub:"Рекомендация по учебному темпу" }
+        ];
+      }
+      if(currentRole === "parent"){
+        const child = getChildStudent();
+        const avg = averageStudentProgress(child.id);
+        return [
+          { label:"Ребёнок", value:child.group, sub:child.name },
+          { label:"Средний прогресс", value:avg + "%", sub:"Совокупный показатель по предметам" },
+          { label:"Посещаемость", value:getStudentAttendanceAvg(child.id) + "%", sub:"Дисциплина за текущий цикл" },
+          { label:"Риск", value:avg < 70 ? "Есть" : "Низкий", sub:"По порогу 70% успеваемости" }
+        ];
+      }
+      const teacherCount = 2;
+      const groupCount = state.groups.length;
+      const studentCount = state.students.length;
+      const avg = Math.round(state.groups.reduce((sum,g)=>sum+averageGroupProgress(g.id),0) / state.groups.length);
+      return [
+        { label:"Преподаватели", value:teacherCount, sub:"Подключены к системе и матрице доступа" },
+        { label:"Группы", value:groupCount, sub:"Активные потоки текущего семестра" },
+        { label:"Студенты", value:studentCount, sub:"Учитываются в демонстрационной базе" },
+        { label:"Средний прогресс", value:avg + "%", sub:"Сводно по академическим потокам" }
+      ];
+    }
+
+    function getMiniSummary(){
+      if(currentRole === "teacher"){
+        return [
+          { label:"Текущий предмет", value:subjectLabel(currentUser.focusSubject) },
+          { label:"Поток", value:currentUser.focusGroup },
+          { label:"Незаполненные зоны", value:"0 критичных" },
+          { label:"Последнее обновление", value:"сегодня · 16:40" }
+        ];
+      }
+      if(currentRole === "student"){
+        return [
+          { label:"Студент", value:currentUser.name.split(" ")[0] + " " + currentUser.name.split(" ")[1] },
+          { label:"Группа", value:getStudent(currentUser.studentId).group },
+          { label:"Лучший предмет", value:bestSubjectLabel(currentUser.studentId) },
+          { label:"Последний балл", value:"Полевой выезд · 20/24" }
+        ];
+      }
+      if(currentRole === "parent"){
+        const child = getChildStudent();
+        return [
+          { label:"Ребёнок", value:child.name.split(" ")[0] + " " + child.name.split(" ")[1] },
+          { label:"Группа", value:child.group },
+          { label:"Последний риск", value:worstSubjectLabel(child.id) },
+          { label:"Обновление", value:"сегодня · 16:40" }
+        ];
+      }
+      return [
+        { label:"Активная база", value:"демо-семестр" },
+        { label:"Права преподавателей", value:"настроены" },
+        { label:"Сводка потоков", value:"актуальна" },
+        { label:"Локальное хранение", value:"включено" }
+      ];
+    }
+
+    function getQualitySignals(){
+      if(currentRole === "teacher"){
+        return [
+          { title:"Риск по Геологии месторождений", text:"2 студента ниже 65%. Стоит назначить корректирующую работу.", score:"62%", kind:"danger" },
+          { title:"Посещаемость потока ГП-24", text:"Удерживается выше целевого порога, падения не наблюдается.", score:"86%", kind:"ok" },
+          { title:"Итог по проектам ТПД", text:"Проектная активность выше среднего по факультету.", score:"81%", kind:"warn" }
+        ];
+      }
+      if(currentRole === "student"){
+        return [
+          { title:"Лучший прогресс", text:"Сильная динамика по «Технологии подземной добычи».", score:bestSubjectLabel(currentUser.studentId), kind:"ok" },
+          { title:"Точка роста", text:"Нужно усилить работу по самой слабой дисциплине.", score:worstSubjectLabel(currentUser.studentId), kind:"warn" },
+          { title:"Дисциплина посещения", text:"Пропусков немного, ритм обучения стабильный.", score:getStudentAttendanceAvg(currentUser.studentId) + "%", kind:"ok" }
+        ];
+      }
+      if(currentRole === "parent"){
+        const child = getChildStudent();
+        return [
+          { title:"Общий статус", text:"Рекомендуется проследить за слабой дисциплиной ребёнка.", score:worstSubjectLabel(child.id), kind:"warn" },
+          { title:"Посещаемость", text:"Регулярность посещения удерживается в безопасной зоне.", score:getStudentAttendanceAvg(child.id) + "%", kind:"ok" },
+          { title:"Итог семестра", text:"При сохранении темпа итог будет не ниже хорошего уровня.", score:averageStudentProgress(child.id) + "%", kind:"ok" }
+        ];
+      }
+      return [
+        { title:"Матрица доступа", text:"Конфликты пересечений дисциплин не обнаружены.", score:"OK", kind:"ok" },
+        { title:"Состав потоков", text:"Нагрузка распределена без критического перекоса.", score:"Стаб.", kind:"warn" },
+        { title:"Интерфейс", text:"Новая логика упрощает сценарии для ролей.", score:"v2", kind:"ok" }
+      ];
+    }
+
+    function getRoleGroups(){
+      if(currentRole === "teacher"){
+        const teacherId = currentUser.id;
+        const subjectIds = Object.entries(state.teacherAccess[teacherId] || {}).filter(([k,v]) => v).map(([k]) => k);
+        const groupIds = new Set(state.subjects.filter(s => subjectIds.includes(s.id)).flatMap(s => s.groups));
+        return state.groups.filter(g => groupIds.has(g.id));
+      }
+      if(currentRole === "student"){
+        return state.groups.filter(g => g.id === getStudent(currentUser.studentId).group);
+      }
+      if(currentRole === "parent"){
+        return state.groups.filter(g => g.id === getChildStudent().group);
+      }
+      return state.groups;
+    }
+
+    function getSubjectsForGroup(groupId){
+      if(!groupId) return [];
+      let subjects = state.subjects.filter(s => s.groups.includes(groupId));
+      if(currentRole === "teacher"){
+        const access = state.teacherAccess[currentUser.id] || {};
+        subjects = subjects.filter(s => access[s.id]);
+      }
+      return subjects;
+    }
+
+    function getStudent(studentId){
+      return state.students.find(s => s.id === studentId);
+    }
+
+    function getChildStudent(){
+      return getStudent(currentUser.childId);
+    }
+
+    function getStudentSubjects(studentId){
+      const student = getStudent(studentId);
+      return state.subjects.filter(subj => subj.groups.includes(student.group));
+    }
+
+    function getStudentSubjectTotal(studentId, subjectId){
+      const cfg = state.configs[subjectId];
+      const record = state.scores[studentId]?.[subjectId] || {};
+      return cfg.activities.reduce((sum, a) => sum + Number(record[a.id] || 0), 0);
+    }
+
+    function getStudentAttendancePct(studentId, subjectId){
+      const marks = state.attendance[studentId]?.[subjectId] || [];
+      if(!marks.length) return 0;
+      return Math.round(100 * marks.filter(Boolean).length / marks.length);
+    }
+
+    function getStudentAttendanceAvg(studentId){
+      const subjects = getStudentSubjects(studentId);
+      const arr = subjects.map(s => getStudentAttendancePct(studentId, s.id));
+      return arr.length ? Math.round(arr.reduce((a,b)=>a+b,0) / arr.length) : 0;
+    }
+
+    function percentage(value, max){
+      return Math.round((value / max) * 100);
+    }
+
+    function gradeText(total, max){
+      const pct = percentage(total, max);
+      if(pct >= 85) return "5 · отлично";
+      if(pct >= 70) return "4 · хорошо";
+      if(pct >= 55) return "3 · удовлетворительно";
+      return "2 · риск";
+    }
+
+    function gradeBadge(total, max){
+      const pct = percentage(total, max);
+      if(pct >= 85) return '<span class="badge ok">5</span>';
+      if(pct >= 70) return '<span class="badge warn">4</span>';
+      if(pct >= 55) return '<span class="badge">3</span>';
+      return '<span class="badge danger">2</span>';
+    }
+
+    function scoreClass(value, max){
+      const pct = percentage(value, max);
+      if(pct >= 85) return "score-high";
+      if(pct >= 60) return "score-mid";
+      return "score-low";
+    }
+
+    function averageSubjectByGroup(subjectId, groupId){
+      const students = state.students.filter(s => s.group === groupId);
+      if(!students.length) return 0;
+      return Math.round(students.reduce((sum, st) => sum + percentage(getStudentSubjectTotal(st.id, subjectId), state.configs[subjectId].max), 0) / students.length);
+    }
+
+    function groupAttendance(groupId, subjectId){
+      const students = state.students.filter(s => s.group === groupId);
+      const total = students.reduce((sum, st) => sum + getStudentAttendancePct(st.id, subjectId), 0);
+      return students.length ? total / students.length : 0;
+    }
+
+    function averageStudentProgress(studentId){
+      const subjects = getStudentSubjects(studentId);
+      if(!subjects.length) return 0;
+      return Math.round(subjects.reduce((sum, subj) => sum + percentage(getStudentSubjectTotal(studentId, subj.id), state.configs[subj.id].max), 0) / subjects.length);
+    }
+
+    function averageGroupProgress(groupId){
+      const students = state.students.filter(s => s.group === groupId);
+      if(!students.length) return 0;
+      return Math.round(students.reduce((sum, st) => sum + averageStudentProgress(st.id), 0) / students.length);
+    }
+
+    function bestSubjectLabel(studentId){
+      const subjects = getStudentSubjects(studentId);
+      if(!subjects.length) return "—";
+      const ranked = subjects.map(s => ({ name:s.name, score:percentage(getStudentSubjectTotal(studentId, s.id), state.configs[s.id].max) }))
+        .sort((a,b)=>b.score-a.score);
+      return ranked[0].name;
+    }
+
+    function worstSubjectLabel(studentId){
+      const subjects = getStudentSubjects(studentId);
+      if(!subjects.length) return "—";
+      const ranked = subjects.map(s => ({ name:s.name, score:percentage(getStudentSubjectTotal(studentId, s.id), state.configs[s.id].max) }))
+        .sort((a,b)=>a.score-b.score);
+      return ranked[0].name;
+    }
+
+    function subjectLabel(subjectId){
+      return state.subjects.find(s => s.id === subjectId)?.name || subjectId;
+    }
+
+    function teacherLabel(teacherId){
+      if(teacherId === "teacher-1") return "А. П. Орлов";
+      return "Е. В. Миронова";
+    }
+
+    function shortSubject(name){
+      return name.split(" ")[0];
+    }
+
+    function initials(name){
+      return name.split(" ").slice(0,2).map(p => p[0]).join("").toUpperCase();
+    }
+
+    function roleTitle(role){
+      return {
+        teacher: "Преподаватель",
+        student: "Студент",
+        parent: "Родитель",
+        admin: "Администратор"
+      }[role] || role;
+    }
+
+    function openScoreModal(studentId, subjectId, activityId){
+      const cfg = state.configs[subjectId];
+      const activity = cfg.activities.find(a => a.id === activityId);
+      const student = getStudent(studentId);
+      const current = state.scores[studentId]?.[subjectId]?.[activityId] ?? 0;
+      scoreEditing = { studentId, subjectId, activityId, max: activity.max };
+      els.scoreContext.textContent = `${student.name} · ${subjectLabel(subjectId)} · ${activity.label} (макс. ${activity.max})`;
+      els.scoreInput.value = current;
+      els.scoreInput.max = activity.max;
+      els.scorePresets.innerHTML = [0, Math.round(activity.max*.25), Math.round(activity.max*.5), Math.round(activity.max*.75), activity.max]
+        .map(v => `<button class="preset" onclick="setPreset(${v})">${v}</button>`).join("");
+      els.scoreModal.classList.add("open");
+    }
+
+    function setPreset(value){
+      els.scoreInput.value = value;
+    }
+    window.setPreset = setPreset;
+
+    function closeScoreModal(){
+      els.scoreModal.classList.remove("open");
+      scoreEditing = null;
+    }
+
+    function applyScore(){
+      if(!scoreEditing) return;
+      const val = Math.max(0, Math.min(Number(els.scoreInput.value || 0), scoreEditing.max));
+      if(!state.scores[scoreEditing.studentId]) state.scores[scoreEditing.studentId] = {};
+      if(!state.scores[scoreEditing.studentId][scoreEditing.subjectId]) state.scores[scoreEditing.studentId][scoreEditing.subjectId] = {};
+      state.scores[scoreEditing.studentId][scoreEditing.subjectId][scoreEditing.activityId] = val;
+      saveState();
+      renderAll();
+      closeScoreModal();
+      showToast("Балл обновлён.");
+    }
+
+    function toggleAttendance(studentId, subjectId, weekIndex){
+      const arr = state.attendance[studentId]?.[subjectId];
+      if(!arr) return;
+      arr[weekIndex] = !arr[weekIndex];
+      saveState();
+      renderAttendance();
+    }
+    window.toggleAttendance = toggleAttendance;
+
+    function markAllPresent(){
+      const groupId = els.attendanceGroup.value;
+      const subjectId = els.attendanceSubject.value;
+      state.students.filter(s => s.group === groupId).forEach(student => {
+        state.attendance[student.id][subjectId] = state.attendanceWeeks.map(() => true);
+      });
+      saveState();
+      renderAttendance();
+      showToast("Все студенты отмечены как присутствующие.");
+    }
+
+    function toggleAccess(teacherId, subjectId){
+      state.teacherAccess[teacherId][subjectId] = !state.teacherAccess[teacherId][subjectId];
+      saveState();
+      renderAdmin();
+      if(currentRole === "teacher" && currentUser.id === teacherId){
+        populateFilters();
+        renderJournal();
+      }
+    }
+    window.toggleAccess = toggleAccess;
+
+    function showToast(text){
+      els.toast.textContent = text;
+      els.toast.classList.add("show");
+      clearTimeout(showToast._timer);
+      showToast._timer = setTimeout(() => els.toast.classList.remove("show"), 2200);
+    }
+
+    window.openScoreModal = openScoreModal;
+    window.setPage = setPage;
+
+    init();
+  </script>
+</body>
+</html>
